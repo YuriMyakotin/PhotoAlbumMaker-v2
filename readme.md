@@ -13,7 +13,7 @@ Added autoupgrade website to new PhotoAlbum Maker versions. Just open 1.xx websi
 <b>Website content changes:</b><br>
 No more JQuery. Just 'vanilla' javascript.<br>
 Internet Explorer no longer supported.<br>
-Now using Lightgallery v2 instead of obsollete Fancybox v3<br>
+Now using Lightgallery v2 instead of obsolete Fancybox v3<br>
 
 
 
