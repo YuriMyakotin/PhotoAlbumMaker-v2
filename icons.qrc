@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/photo-album-icon-clipart-3.ico</file>
+        <file>icons/pause.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/stop.svg</file>
+        <file>icons/no-image.svg</file>
+        <file>icons/screenshot.svg</file>
+    </qresource>
+</RCC>

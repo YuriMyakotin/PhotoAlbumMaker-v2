@@ -1,0 +1,159 @@
+﻿header, footer, nav, section {
+	display: block;
+}
+
+body {
+	background-color: #505080;
+	color: #889098;
+}
+
+a:link,
+a:visited {
+	color: #dcdcdc;
+    text-decoration: none;
+}
+
+a:active,
+a:hover {
+	color: #b8b8b8;
+    text-decoration: none;
+}
+
+.top_navigation {
+	text-align: center;
+	letter-spacing: 4px;
+	text-transform: uppercase;
+	font-size: large;
+	font-family: helvetica,sans-serif;
+	font-weight: bold;
+	margin-bottom: 15px;
+	margin-top: 15px;
+}
+
+.top_navigation a {
+	text-decoration: none;
+	outline: none;
+}
+
+.Img {
+	margin:0;
+	margin-top:0px;
+	margin-bottom:0px;
+}
+
+.Fol {
+	text-align: left;
+	margin: 0;
+	vertical-align: middle;
+}
+
+.Vid {
+	text-align: left;
+	margin: 0;
+	vertical-align: middle;
+
+}
+
+.I {
+	border: 0 solid black;
+}
+
+.images-list {
+	margin: auto;
+	width: 90%;
+	margin-bottom: 10px;
+}
+
+.videos-list {
+	margin: auto;
+	width: 90%;
+	margin-bottom: 10px;
+}
+
+.folder-desc {
+	margin: auto;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	width: 90%;
+	text-align: center;
+	font-size: smaller;
+	font-family: helvetica,sans-serif;
+	font-style: italic;
+	color: #c8D8E8;
+	background-color: transparent;
+}
+
+.folders-list {
+	margin: auto;
+	width: 90%;
+	margin-bottom: 10px;
+}
+
+.F {
+	border: none;
+	padding: 4px;
+	resize: both;
+}
+
+.V {
+	border: none;
+	padding: 2px;
+	resize: both;
+}
+
+.folder-name {
+	position: absolute;
+	right: 2px;
+	bottom: 2px;
+	font-family: helvetica,sans-serif;
+	font-weight: bold;
+	font-size: large;
+	color: white;
+	padding: 2px;
+	text-align: right;
+
+	text-shadow: 4px 3px 2px #404040;
+	width: 45%;
+}
+
+.video-name {
+	position: absolute;
+	right: 2px;
+	bottom: 2px;
+	font-family: helvetica,sans-serif;
+	font-weight: bold;
+	font-size: medium;
+	color: white;
+	padding: 2px;
+	text-align: right;
+	text-shadow: 3px 2px 1px #404040;
+	width: 30%;
+}
+
+a.OrigImgLink:link, a.OrigImgLink:visited, a.OrigImgLink:hover, a.OrigImgLink:active {
+	color: #A0C0FF;
+	text-decoration: none;
+    font-weight: bold;
+    font-size: 18px;
+    outline: none;
+}
+
+.cmnt{
+	color:lightcoral;
+	font-style:italic;
+	font-size: 16px;
+	font-family:'Times New Roman', Times, serif;
+}
+
+
+footer {
+	text-align: center;
+	font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+
+
+.bottom-info-bar {
+	color: lightgoldenrodyellow;
+	font-style: italic;
+}

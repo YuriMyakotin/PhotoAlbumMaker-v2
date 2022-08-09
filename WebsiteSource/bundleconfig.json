@@ -1,0 +1,22 @@
+[
+  {
+    "outputFileName": "Scripts/photoalbum-bundle.js",
+    "inputFiles": [
+      "Scripts/lightgallery.umd.js",
+      "Scripts/lg-zoom.umd.js",
+      "Scripts/lg-video.umd.js",
+      "Scripts/lg-thumbnail.umd.js",
+      "Scripts/lg-relative-caption.umd.js",
+      "Scripts/lg-autoplay.umd.js",
+      "Scripts/masonry.pkgd.min.js",
+      "Scripts/PhotoGallery.js"
+    ]
+  },
+  {
+    "outputFileName": "Content/photogallery-bundle.css",
+    "inputFiles": [
+      "Content/lightgallery-bundle.min.css",
+      "Content/Photogallery.css"
+    ]
+  }
+]
