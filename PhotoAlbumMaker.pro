@@ -50,12 +50,25 @@ FORMS += \
     videothumbwidget.ui
 
 # Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+#qnx: target.path = /tmp/$${TARGET}/bin
+#else: unix:!android: target.path = /opt/$${TARGET}/bin
+#!isEmpty(target.path): INSTALLS += target
 
 win32: RC_ICONS = icons/photo-album-icon-clipart-3.ico
 mac: ICON =  icons/photo-album-icon-clipart-3.ico
 
 RESOURCES += \
-	icons.qrc
+	icons.qrc \
+	website.qrc
+
+DISTFILES += \
+	WebsiteContent/index.html \
+	WebsiteContent/Video.png \
+	WebsiteContent/index.html \
+	WebsiteContent/lg.svg \
+	WebsiteContent/lg.ttf \
+	WebsiteContent/lg.woff \
+	WebsiteContent/lg.woff2 \
+	WebsiteContent/loading.gif \
+	WebsiteContent/photoalbum-bundle.min.js \
+	WebsiteContent/photogallery-bundle.min.css

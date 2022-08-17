@@ -450,6 +450,7 @@ void MainWindow::onFolderSelectionChanged(QTreeWidgetItem *current, QTreeWidgetI
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+	if (isAsyncJobRunning) return;
 	if (hasUnsavedChanges) SaveSiteData();
 
 
@@ -471,6 +472,7 @@ void MainWindow::StartSaving()
 
 void MainWindow::SaveSiteData()
 {
+	if (isAsyncJobRunning) return;
 	SavingTimer.stop();
 
 	if(!isBackupCreated)
@@ -684,35 +686,34 @@ void MainWindow::SaveVideosOrder()
 bool MainWindow::CopySiteContent() const
 {
 	bool result=true;
-	const QDir SourceDir(QCoreApplication::applicationDirPath()+"/WebsiteContent/");
+
 	QDir TargetDir(SitePath);
-	QFile::remove(TargetDir.filePath("index.html"));
-	if (!QFile::copy(SourceDir.filePath("index.html"),TargetDir.filePath("index.html"))) result=false;
+	result=result && QFile::copy(":/website/WebsiteContent/index.html",TargetDir.filePath("index.html"));
 
 	TargetDir.setPath(SitePath+"/Scripts/");
-	if (!TargetDir.exists()) TargetDir.mkdir(".");
+	if (!TargetDir.exists()) result=result && TargetDir.mkdir(".");
 	QFile::remove(TargetDir.filePath("photoalbum-bundle.min.js"));
-	if (!QFile::copy(SourceDir.filePath("photoalbum-bundle.min.js"),TargetDir.filePath("photoalbum-bundle.min.js"))) result=false;
+	result=result && QFile::copy(":/website/WebsiteContent/photoalbum-bundle.min.js",TargetDir.filePath("photoalbum-bundle.min.js"));
 
 	TargetDir.setPath(SitePath+"/Content/");
-	if (!TargetDir.exists()) TargetDir.mkdir(".");
+	if (!TargetDir.exists()) result=result &&  TargetDir.mkdir(".");
 	QFile::remove(TargetDir.filePath("photogallery-bundle.min.css"));
-	if (!QFile::copy(SourceDir.filePath("photogallery-bundle.min.css"),TargetDir.filePath("photogallery-bundle.min.css"))) result=false;
-	QFile::copy(SourceDir.filePath("Video.png"),TargetDir.filePath("Video.png"));
+	result=result && QFile::copy(":/website/WebsiteContent/photogallery-bundle.min.css",TargetDir.filePath("photogallery-bundle.min.css"));
+	QFile::copy(":/website/WebsiteContent/Video.png",TargetDir.filePath("Video.png"));
 
 	TargetDir.setPath(SitePath+"/Images/");
-	if (!TargetDir.exists()) TargetDir.mkdir(".");
-	QFile::copy(SourceDir.filePath("loading.gif"),TargetDir.filePath("loading.gif"));
+	if (!TargetDir.exists()) result=result && TargetDir.mkdir(".");
+	QFile::copy(":/website/WebsiteContent/loading.gif",TargetDir.filePath("loading.gif"));
 
 	TargetDir.setPath(SitePath+"/fonts/");
 	if (!TargetDir.exists()) TargetDir.mkdir(".");
-	QFile::copy(SourceDir.filePath("lg.svg"),TargetDir.filePath("lg.svg"));
-	QFile::copy(SourceDir.filePath("lg.ttf"),TargetDir.filePath("lg.ttf"));
-	QFile::copy(SourceDir.filePath("lg.woff"),TargetDir.filePath("lg.woff"));
-	QFile::copy(SourceDir.filePath("lg.woff2"),TargetDir.filePath("lg.woff2"));
+	QFile::copy(":/website/WebsiteContent/lg.svg",TargetDir.filePath("lg.svg"));
+	QFile::copy(":/website/WebsiteContent/lg.ttf",TargetDir.filePath("lg.ttf"));
+	QFile::copy(":/website/WebsiteContent/lg.woff",TargetDir.filePath("lg.woff"));
+	QFile::copy(":/website/WebsiteContent/lg.woff2",TargetDir.filePath("lg.woff2"));
 
 	TargetDir.setPath(SitePath+"/Videos/");
-	if (!TargetDir.exists()) TargetDir.mkdir(".");
+	if (!TargetDir.exists()) result=result && TargetDir.mkdir(".");
 
 	return result;
 }
@@ -748,6 +749,20 @@ bool MainWindow::MakeSlideAndThumb(const ImageInfo * Img, const bool MakeSlide, 
 }
 
 
+
+void MainWindow::PrepareToAsyncJob(int32_t ItemsToProcess, QString Message)
+{
+	ui->progressBar->setValue(0);
+	ui->progressBar->setMaximum(ItemsToProcess);
+	ui->ProgressTextLabel->setText(Message);
+	ui->menubar->setEnabled(false);
+	ui->ImagesListWidget->setEnabled(false);
+	ui->FoldersTreeWidget->setEnabled(false);
+	Progress=0;
+	isAsyncJobRunning=true;
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+}
+
 void MainWindow::onProgressUpdate()
 {
 	++Progress;
@@ -761,6 +776,7 @@ void MainWindow::onProgressUpdate()
 		ui->ImagesListWidget->setEnabled(true);
 		ui->FoldersTreeWidget->setEnabled(true);
 		QApplication::restoreOverrideCursor();
+		isAsyncJobRunning=false;
 		onFolderSelectionChanged(AlbumFolders[CurrentFolderID],nullptr); //reload images
 		StartSaving();
 
@@ -777,16 +793,8 @@ void MainWindow::RecreateSlidesAndThumbs(const bool MakeSlide, const bool MakeTh
 	{
 		TotalImages+=Item->Info->ImagesList.count();
 	}
-	Progress=0;
-	ui->progressBar->setVisible(true);
-	ui->progressBar->setValue(0);
-	ui->progressBar->setMaximum(TotalImages);
-	ui->ProgressTextLabel->setText("Recreating images thumbs and slides");
-	ui->menubar->setEnabled(false);
-	ui->ImagesListWidget->setEnabled(false);
-	ui->FoldersTreeWidget->setEnabled(false);
-	QApplication::setOverrideCursor(Qt::WaitCursor);
 
+	PrepareToAsyncJob(TotalImages,"Recreating images thumbs and slides");
 
 	for(const AlbumTreeItem* Item : qAsConst(AlbumFolders))
 	{
@@ -999,15 +1007,8 @@ void MainWindow::onExifRescan()
 	{
 		TotalImages+=Item->Info->ImagesList.count();
 	}
-	Progress=0;
-	ui->progressBar->setVisible(true);
-	ui->progressBar->setValue(0);
-	ui->progressBar->setMaximum(TotalImages);
-	ui->ProgressTextLabel->setText("Rebuilding images EXIF info");
-	ui->menubar->setEnabled(false);
-	ui->ImagesListWidget->setEnabled(false);
-	ui->FoldersTreeWidget->setEnabled(false);
-	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	PrepareToAsyncJob(TotalImages,"Rebuilding images EXIF info");
 
 
 	for(const AlbumTreeItem* Item : qAsConst(AlbumFolders))
@@ -1047,12 +1048,13 @@ void MainWindow::onAddImages()
 	{
 		ui->progressBar->setValue(i);
 		QString FileName=QFileInfo(FileNamesToAdd[i]).fileName();
-		QString DestFileName=GetOriginalFileName(CurrentFolderID,FileName);
+		QString DestFileName=GetOriginalFileName(CurrentFolderID,FileName.toUpper());
 		if (CurrentFolderImages.contains(FileName.toUpper())) //file already exists
 		{
 			if (YesNoAll==QMessageBox::NoToAll) continue;
 			if (YesNoAll!=QMessageBox::YesToAll)
 			{
+				QApplication::restoreOverrideCursor();
 				switch(QMessageBox::question(this,"Image already exists","Current folder already contains "+FileName+"\nOverwrite?",QMessageBox::Yes|QMessageBox::No|QMessageBox::YesToAll|QMessageBox::NoToAll))
 				{
 					case QMessageBox::NoToAll:
@@ -1067,7 +1069,7 @@ void MainWindow::onAddImages()
 					default:
 						continue;
 				}
-
+				QApplication::setOverrideCursor(Qt::WaitCursor);
 			}
 
 			QFile::rename(DestFileName,DestFileName+".bak"); //temporary keep old version
@@ -1101,6 +1103,7 @@ void MainWindow::onAddImages()
 
 
 	}
+	QApplication::restoreOverrideCursor();
 	if (ImagesToProcess.count()==0)
 	{
 		ui->progressBar->setVisible(false);
@@ -1108,12 +1111,7 @@ void MainWindow::onAddImages()
 		return;
 	}
 
-	ui->progressBar->setValue(0);
-	ui->progressBar->setMaximum(ImagesToProcess.count());
-	ui->ProgressTextLabel->setText("Processing new images");
-	ui->menubar->setEnabled(false);
-	ui->ImagesListWidget->setEnabled(false);
-	ui->FoldersTreeWidget->setEnabled(false);
+	PrepareToAsyncJob(ImagesToProcess.count(),"Processing new images");
 
 
 	for (int32_t i=0;i<ImagesToProcess.count();i++)

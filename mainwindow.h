@@ -82,6 +82,7 @@ public:
 	QSettings * settings;
 
 	int32_t Progress;
+	bool isAsyncJobRunning=false;
 
 	QMap<uint32_t,AlbumTreeItem *> AlbumFolders;
 	QHash<QString,ImageInfo*> CurrentFolderImages;
@@ -89,6 +90,8 @@ public:
 	void Start();
 
 	void UpdateActionsStatus() const;
+	void PrepareToAsyncJob(int32_t ItemsToProcess, QString Message);
+
 
 	void ConnectFolderTreeWidget();
 
@@ -132,6 +135,7 @@ public slots:
 
 
 	void onProgressUpdate();
+
 
 	void SaveSiteData();
 
