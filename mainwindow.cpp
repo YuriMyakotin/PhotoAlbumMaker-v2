@@ -689,31 +689,26 @@ bool MainWindow::CopySiteContent() const
 
 	QDir TargetDir(SitePath);
 	result=result && QFile::copy(":/website/WebsiteContent/index.html",TargetDir.filePath("index.html"));
+	TargetDir.mkpath("Scripts");
+	TargetDir.mkpath("Content");
+	TargetDir.mkpath("Images");
+	TargetDir.mkpath("fonts");
+	TargetDir.mkpath("Videos");
 
-	TargetDir.setPath(SitePath+"/Scripts/");
-	if (!TargetDir.exists()) result=result && TargetDir.mkdir(".");
-	QFile::remove(TargetDir.filePath("photoalbum-bundle.min.js"));
-	result=result && QFile::copy(":/website/WebsiteContent/photoalbum-bundle.min.js",TargetDir.filePath("photoalbum-bundle.min.js"));
 
-	TargetDir.setPath(SitePath+"/Content/");
-	if (!TargetDir.exists()) result=result &&  TargetDir.mkdir(".");
-	QFile::remove(TargetDir.filePath("photogallery-bundle.min.css"));
-	result=result && QFile::copy(":/website/WebsiteContent/photogallery-bundle.min.css",TargetDir.filePath("photogallery-bundle.min.css"));
-	QFile::copy(":/website/WebsiteContent/Video.png",TargetDir.filePath("Video.png"));
 
-	TargetDir.setPath(SitePath+"/Images/");
-	if (!TargetDir.exists()) result=result && TargetDir.mkdir(".");
-	QFile::copy(":/website/WebsiteContent/loading.gif",TargetDir.filePath("loading.gif"));
+	QFile::remove(TargetDir.filePath("Scripts/photoalbum-bundle.min.js"));
+	result=result && QFile::copy(":/website/WebsiteContent/photoalbum-bundle.min.js",TargetDir.filePath("Scripts/photoalbum-bundle.min.js"));
 
-	TargetDir.setPath(SitePath+"/fonts/");
-	if (!TargetDir.exists()) TargetDir.mkdir(".");
-	QFile::copy(":/website/WebsiteContent/lg.svg",TargetDir.filePath("lg.svg"));
-	QFile::copy(":/website/WebsiteContent/lg.ttf",TargetDir.filePath("lg.ttf"));
-	QFile::copy(":/website/WebsiteContent/lg.woff",TargetDir.filePath("lg.woff"));
-	QFile::copy(":/website/WebsiteContent/lg.woff2",TargetDir.filePath("lg.woff2"));
+	QFile::remove(TargetDir.filePath("Content/photogallery-bundle.min.css"));
+	result=result && QFile::copy(":/website/WebsiteContent/photogallery-bundle.min.css",TargetDir.filePath("Content/photogallery-bundle.min.css"));
+	QFile::copy(":/website/WebsiteContent/Video.png",TargetDir.filePath("Content/Video.png"));
+	QFile::copy(":/website/WebsiteContent/loading.gif",TargetDir.filePath("Images/loading.gif"));
+	QFile::copy(":/website/WebsiteContent/lg.svg",TargetDir.filePath("fonts/lg.svg"));
+	QFile::copy(":/website/WebsiteContent/lg.ttf",TargetDir.filePath("fonts/lg.ttf"));
+	QFile::copy(":/website/WebsiteContent/lg.woff",TargetDir.filePath("fonts/lg.woff"));
+	QFile::copy(":/website/WebsiteContent/lg.woff2",TargetDir.filePath("fonts/lg.woff2"));
 
-	TargetDir.setPath(SitePath+"/Videos/");
-	if (!TargetDir.exists()) result=result && TargetDir.mkdir(".");
 
 	return result;
 }
