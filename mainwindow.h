@@ -77,7 +77,7 @@ public:
 	static constexpr int32_t FolderIconSize=64;
 
 	const QString IniName="PhotoAlbumMaker.ini";
-	const int32_t PhotoAlbumVersion=200;
+	const int32_t PhotoAlbumVersion=202;
 
 	QSettings * settings;
 

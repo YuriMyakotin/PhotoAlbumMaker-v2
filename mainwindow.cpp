@@ -688,6 +688,7 @@ bool MainWindow::CopySiteContent() const
 	bool result=true;
 
 	QDir TargetDir(SitePath);
+	QFile::remove(TargetDir.filePath("index.html"));
 	result=result && QFile::copy(":/website/WebsiteContent/index.html",TargetDir.filePath("index.html"));
 	TargetDir.mkpath("Scripts");
 	TargetDir.mkpath("Content");
