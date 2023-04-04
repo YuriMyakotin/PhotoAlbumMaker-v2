@@ -1,7 +1,13 @@
 QT       += core gui multimedia widgets multimediawidgets concurrent
 
 
-CONFIG += c++20
+CONFIG += c++latest
+
+win32-msvc*
+{
+QMAKE_CXXFLAGS += /Zc:__cplusplus /O2 /Ot /Oi /GL /arch:AVX2
+}
+
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -27,6 +33,8 @@ HEADERS += \
     TinyEXIF.h \
     aboutdialog.h \
     avir.h \
+    avir_dil.h \
+    avir_float8_avx.h \
     editfolderdialog.h \
     editimagedescriptiondialog.h \
     editvideodialog.h \

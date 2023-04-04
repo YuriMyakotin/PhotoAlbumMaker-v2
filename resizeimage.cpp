@@ -1,15 +1,26 @@
 #include "resizeimage.h"
 #include "avir.h"
+
+#if defined (Q_OS_WIN)
+#include "avir_float8_avx.h"
+#endif
+
 #include <QColorSpace>
 
 QImage * ResizeImage::Resize(const QImage * OriginalImage, const int32_t Width, const int32_t Height)
+
 {
 	avir :: CImageResizerVars Vars;
 	if (OriginalImage->colorSpace()==QColorSpace::SRgb)
 	{
 		Vars.UseSRGBGamma = true;
 	}
+
+#if defined (Q_OS_WIN)
+	const avir :: CImageResizer< avir :: fpclass_float8_dil> ImageResizer( 8 );
+#else
 	const avir :: CImageResizer<> ImageResizer( 8 );
+#endif
 
 	QImage * Result=new QImage(Width,Height,QImage::Format_RGB32);
 	ImageResizer.resizeImage( OriginalImage->constBits(), OriginalImage->width(), OriginalImage->height(), 0, Result->bits(), Width, Height, 4, 0);

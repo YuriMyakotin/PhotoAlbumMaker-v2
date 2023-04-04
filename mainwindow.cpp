@@ -688,8 +688,10 @@ bool MainWindow::CopySiteContent() const
 	bool result=true;
 
 	QDir TargetDir(SitePath);
+	QFile::setPermissions("index.html",QFile::ReadOther | QFile::WriteOther);
 	QFile::remove(TargetDir.filePath("index.html"));
 	result=result && QFile::copy(":/website/WebsiteContent/index.html",TargetDir.filePath("index.html"));
+
 	TargetDir.mkpath("Scripts");
 	TargetDir.mkpath("Content");
 	TargetDir.mkpath("Images");
@@ -698,11 +700,14 @@ bool MainWindow::CopySiteContent() const
 
 
 
+	QFile::setPermissions("Scripts/photoalbum-bundle.min.js",QFile::ReadOther | QFile::WriteOther);
 	QFile::remove(TargetDir.filePath("Scripts/photoalbum-bundle.min.js"));
 	result=result && QFile::copy(":/website/WebsiteContent/photoalbum-bundle.min.js",TargetDir.filePath("Scripts/photoalbum-bundle.min.js"));
 
+	QFile::setPermissions("Content/photogallery-bundle.min.css",QFile::ReadOther | QFile::WriteOther);
 	QFile::remove(TargetDir.filePath("Content/photogallery-bundle.min.css"));
 	result=result && QFile::copy(":/website/WebsiteContent/photogallery-bundle.min.css",TargetDir.filePath("Content/photogallery-bundle.min.css"));
+
 	QFile::copy(":/website/WebsiteContent/Video.png",TargetDir.filePath("Content/Video.png"));
 	QFile::copy(":/website/WebsiteContent/loading.gif",TargetDir.filePath("Images/loading.gif"));
 	QFile::copy(":/website/WebsiteContent/lg.svg",TargetDir.filePath("fonts/lg.svg"));
@@ -917,6 +922,7 @@ void MainWindow::onDeleteFolder(int32_t FolderID)
 	delete TreeItem->Info;
 	AlbumFolders.remove(FolderID);
 	delete TreeItem;
+        StartSaving();
 	UpdateActionsStatus();
 }
 

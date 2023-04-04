@@ -18,5 +18,11 @@
       "Content/lightgallery-bundle.min.css",
       "Content/Photogallery.css"
     ]
+  },
+  {
+    "outputFileName": "Scripts/photoalbum-bundle.min.min.js",
+    "inputFiles": [
+      "Scripts/photoalbum-bundle.min.js"
+    ]
   }
 ]
