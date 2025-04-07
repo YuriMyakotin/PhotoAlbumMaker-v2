@@ -25,7 +25,7 @@ SetFolderThumbDialog::SetFolderThumbDialog(ImageInfo * Info, QWidget *parent) :
 		CurrentFolder=MainWindow::MainWindowPtr->AlbumFolders.value(CurrentFolder->ParentFolderID)->Info;
 		Folders.insert(CurrentFolder->FolderID,CreateWidgetItem(CurrentFolder));
 	}
-	for(QTreeWidgetItem * Item : qAsConst(Folders))
+	for(QTreeWidgetItem * Item : std::as_const(Folders))
 	{
 		const int32_t FolderID=Item->data(0,Qt::UserRole).toInt();
 		int32_t ParentID=MainWindow::MainWindowPtr->AlbumFolders.value(FolderID)->Info->ParentFolderID;
@@ -70,7 +70,7 @@ QTreeWidgetItem * SetFolderThumbDialog::CreateWidgetItem(const FolderInfo * Info
 void SetFolderThumbDialog::onAccept()
 {
 	bool isSaveNeed=false;
-	for(const QTreeWidgetItem * Item : qAsConst(Folders))
+	for(const QTreeWidgetItem * Item : std::as_const(Folders))
 	{
 		if (Item->checkState(0)==Qt::CheckState::Checked)
 		{

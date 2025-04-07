@@ -1,12 +1,11 @@
 ﻿/*!
- * PhotoAlbum v 2.00;
+ * PhotoAlbum v 3.00;
  * https://github.com/YuriMyakotin
- * Copyright (c) 2022 Yuri Myakotin;
+ * Copyright (c) 2022-2025 Yuri Myakotin;
  * @license GPLv3
  */
 
-
-const colors = ["#F3B200", "#77B900", "#AD103C", "#2572EB", "#632F00", "#B01E00", "#7200AC", "#006AC1", "#008287", "#56C5FF", "#4617B4", "#C1004F", "#00C13F", "#FF981D", "#FF2E12", "#199900", "#FF1D77", "#AA40FF", "#1FAEFF", "#00D8CC", "#91D100", "#E1B700", "#FF76BC", "#00A3A3", "#FE7C22", "#647687"];
+let colors = [];
 let CurrentFolderID = 0;
 const Folders = new Map();
 
@@ -19,11 +18,34 @@ let Version = 0;
 let RootFolders = [];
 const L = atob("RkEyMzEzQkItQ0UzMTQ5Q0YtQUJDOUUxNEYtMTVCRkU2RkI=");
 
-document.addEventListener("DOMContentLoaded", 
+document.addEventListener("DOMContentLoaded",
 	async function () {
 
 		const response = await fetch("Site.json");
 		const SiteData = await response.json();
+
+		colors = SiteData.FolderColors;
+		document.body.style.backgroundColor = SiteData.BgColor;
+
+		const rules = {};
+
+		for (let i = 0; i < document.styleSheets.length; ++i) {
+			const cssRules = document.styleSheets[i].cssRules;
+			for (let j = 0; j < cssRules.length; ++j)
+				rules[cssRules[j].selectorText] = cssRules[j];
+
+		}
+
+		rules[".folder-name"].style.color = SiteData.FolderNameColor;
+		rules[".video-name"].style.color = SiteData.VideoNameColor;
+		rules[".cmnt"].style.color = SiteData.ImageDescriptionColor;
+		rules[".ImgName"].style.color = SiteData.ImageNameColor;
+		rules[".top_navigation"].style.color = SiteData.NavBarCurrentFolderColor;
+		rules[".FolderLink"].style.color = SiteData.NavBarLinkColor;
+		rules[".bottom-info-bar"].style.color = SiteData.InfoBarColor;
+		rules[".folder-desc"].style.color = SiteData.FolderDescriptionColor;
+		rules[".ExifInfo"].style.color = SiteData.ExifInfoColor;
+		rules[".GpsInfo"].style.color = SiteData.GPSInfoColor;
 
 		if (SiteData.D != null) SiteDescription = SiteData.D;
 		if (SiteData.P != null) isPrivate = SiteData.P;
@@ -41,7 +63,7 @@ document.addEventListener("DOMContentLoaded",
 		JsonFoldersArray.forEach((value) => {
 			value.SubFolders = [];
 			Folders.set(value.I, value);
-		   
+
 		});
 
 		Folders.forEach((value) => {
@@ -52,16 +74,15 @@ document.addEventListener("DOMContentLoaded",
 		});
 
 
-	   
+
 		LoadAlbum(0);
 
 	});
 
 
-
 function MakeNavStr() {
 	var FolderID = CurrentFolderID;
-	if (FolderID === 0) { window.NavStr.innerHTML = SiteName; return; };
+	if (FolderID === 0) { window.NavStr.innerHTML =SiteName; return; };
 
 	var F = Folders.get(FolderID);
 
@@ -69,11 +90,11 @@ function MakeNavStr() {
 	while (true) {
 		FolderID = F.PI;
 		if (FolderID === 0) {
-			window.NavStr.innerHTML = `<a href="#" onclick="LoadAlbum(0)">${SiteName}</a>&nbsp;>> ${window.NavStr.innerHTML}`;
+			window.NavStr.innerHTML = `<a class='NoDecorationLink' href="#" onclick="LoadAlbum(0)"><span class='FolderLink'>${SiteName}</span></a>&nbsp;>> ${window.NavStr.innerHTML}`;
 			return;
 		}
 		F = Folders.get(FolderID);
-		window.NavStr.innerHTML = `<a href="#" onclick="LoadAlbum(${FolderID})">${F.N}</a>&nbsp;>> ${window.NavStr.innerHTML}`;
+		window.NavStr.innerHTML = `<a class='NoDecorationLink' href="#" onclick="LoadAlbum(${FolderID})"><span class='FolderLink'>${F.N}</span></a>&nbsp;>> ${window.NavStr.innerHTML}`;
 	}
 }
 function LoadAlbum(FolderID) {
@@ -86,7 +107,7 @@ function LoadAlbum(FolderID) {
 	} else {
 		const F = Folders.get(FolderID);
 		document.title = `${SiteName}: ${F.N}`;
-		if (F.C != null) DescText= F.C; 
+		if (F.C != null) DescText= F.C;
 	}
 
 	window.FolderDesc.innerText = DescText;
@@ -101,7 +122,7 @@ function LoadAlbum(FolderID) {
 
 
 function LoadSubfolders() {
-	
+
 	while (window.VideosLst.lastChild) { window.VideosLst.removeChild(window.VideosLst.lastChild); }
 	while (window.ImgLst.lastChild) { window.ImgLst.removeChild(window.ImgLst.lastChild); }
 	while (window.FoldersLst.lastChild) { window.FoldersLst.removeChild(window.FoldersLst.lastChild); }
@@ -112,7 +133,7 @@ function LoadSubfolders() {
 	let cnt = SubFolders.length;
 	let i = CurrentFolderID;
 	let grid = document.getElementById("FoldersLst");
-   
+
 	if (cnt > 0) {
 		window.FoldersLst.style.display = "block";
 
@@ -120,7 +141,7 @@ function LoadSubfolders() {
 
 
 			const F = Folders.get(SubFolderID);
-			const ThumbName = `/${F.TF.toString()}/thumbs/${F.TN}`;
+			const ThumbName = `./${F.TF.toString()}/thumbs/${F.TN}`;
 			const AFol = document.createElement('a');
 			const bgColor = colors[i % colors.length];
 			i++;
@@ -144,13 +165,10 @@ function LoadSubfolders() {
 			AFol.appendChild(ASpan);
 
 			grid.appendChild(AFol);
-
-			
-
 		});
-		let msnry = new Masonry(grid,
+		let msnry = new window.Masonry(grid,
 		{
-			itemSelector: '.Fol',
+			itemSelector: ".Fol",
 			"isFitWidth": true,
 			transitionDuration: 0
 		});
@@ -179,9 +197,9 @@ function LoadSubfolders() {
 			let AVid = document.createElement("a");
 			let bgColor = colors[i % colors.length];
 			i++;
-		   
 
-			
+
+
 			AVid.className = "Vid";
 			AVid.title = V.D;
 			AVid.id = `Vid${V.N}`;
@@ -191,16 +209,16 @@ function LoadSubfolders() {
 			AVid.style.width = (ThumbSize * 2.2).toString() + "px";
 			AVid.style.height = (ThumbSize*0.8 + 4).toString() + "px";
 			AVid.style.backgroundColor = bgColor;
-			AVid.style.wordWrap = "normal";
+			AVid.style.wordBreak ="break-word";
 
 			AVid.onclick = function () { ShowVideo(V.N,V.D); };
 
 
 			let AImg = document.createElement("img");
 			AImg.className = "V";
-			AImg.src = "/Videos/thumb_"+V.N+".jpg";
+			AImg.src = `./Videos/thumb_${V.N}.jpg`;
 			AImg.style.height = (ThumbSize*0.8).toString() + "px";
-			AImg.onerror = function() { this.src = '/Content/Video.png'; };
+			AImg.onerror = function() { this.src = "./Content/Video.png"; };
 
 			AVid.appendChild(AImg);
 
@@ -208,17 +226,17 @@ function LoadSubfolders() {
 			ASpan.className = "video-name";
 			ASpan.textContent = V.D;
 
-			
+
 			AVid.appendChild(ASpan);
 
-			
+
 			grid.appendChild(AVid);
 
 		}
 
 
-		
-		let msnry = new Masonry(grid,
+
+		let msnry = new window.Masonry(grid,
 			{
 				itemSelector: '.Vid', "isFitWidth": true, transitionDuration: 0
 			});
@@ -249,10 +267,10 @@ function LoadSubfolders() {
 			let InfoStr = "<div>";
 			if (IM.C != null) InfoStr += `<span class='cmnt'>${IM.C}</span><br />`;
 			InfoStr +=
-				`<a class='OrigImgLink' id='OrigImg' href='#' title='Original image' onclick="ShowOriginalImage(${
+				`<a class='NoDecorationLink' id='OrigImg' href='#' title='Original image' onclick="ShowOriginalImage(${
 				CurrentFolderID},'${IM.N
-				}');return false;">${IM.N}</a><br />`;
-			InfoStr += ExifInfoToStr(IM) + "<br />" + GPSInfoToStr(IM);
+				}');return false;"><span class='ImgName'>${IM.N}</span></a><br />`;
+			InfoStr +=`<span class='ExifInfo'>${ExifInfoToStr(IM)}</span><br />${GPSInfoToStr(IM)}`;
 			InfoStr += "<br /></div>";
 
 			AImg.setAttribute("data-sub-html", InfoStr);
@@ -263,8 +281,8 @@ function LoadSubfolders() {
 
 		}
 
-		
-		let msnry = new Masonry(grid,
+
+		let msnry = new window.Masonry(grid,
 			{
 				itemSelector: '.Img',
 				"isFitWidth": true,
@@ -272,7 +290,7 @@ function LoadSubfolders() {
 			});
 
 
-		ImgLightGallery = lightGallery(grid,
+		ImgLightGallery = window.lightGallery(grid,
 			{
 				licenseKey: L,
 				mode: "lg-fade",
@@ -301,7 +319,7 @@ function ShowOriginalImage(FolderID, ImageName) {
 	var CurrentIdx = ImgLightGallery.index;
 	ImgLightGallery.closeGallery();
 
-	const OrigImageLG = lightGallery(document.getElementById("OrigImg"),
+	const OrigImageLG = window.lightGallery(document.getElementById("OrigImg"),
 		{
 			licenseKey: L,
 			startAnimationDuration: 0,
@@ -316,7 +334,7 @@ function ShowOriginalImage(FolderID, ImageName) {
 
 	OrigImageLG.openGallery(0);
 	document.getElementById("OrigImg").addEventListener('lgAfterClose', () => { ImgLightGallery.openGallery(CurrentIdx); });
-	
+
 }
 
 
@@ -325,7 +343,7 @@ function ShowOriginalImage(FolderID, ImageName) {
 function ShowVideo(VideoName,VideoDescription) {
 	const ctrlList=(isPrivate)?"nodownload":"";
 
-	const VideoLG = lightGallery(document.getElementById(`Vid${VideoName}`),
+	const VideoLG = window.lightGallery(document.getElementById(`Vid${VideoName}`),
 		{
 			licenseKey: L,
 			autoplayVideoOnSlide: true,
@@ -341,7 +359,7 @@ function ShowVideo(VideoName,VideoDescription) {
 					video: {
 						source: [
 							{
-								src: `/videos/${VideoName}`,
+								src: `./videos/${VideoName}`,
 								type: "video/mp4"
 							}
 						],
@@ -393,9 +411,8 @@ function GPSInfoToStr(IM) {
 	if ((IM.La != null) && (IM.Lo != null))
 	{
 		const gmapscoords = IM.La + ","+IM.Lo;
-		let textcoords = ConvertDEGToDMS(IM.La, true) + ",&nbsp;" + ConvertDEGToDMS(IM.Lo, false);
-		if (IM.Al != null) textcoords += `,&nbsp${IM.Al}`;
-		retval = `<a href="https://www.google.com/maps/dir//${gmapscoords}/@${gmapscoords},18z" target="_blank">${textcoords}</a>`;
+		const textcoords = ConvertDEGToDMS(IM.La, true) + ",&nbsp;" + ConvertDEGToDMS(IM.Lo, false);
+		retval = `<a class='NoDecorationLink' href="https://www.google.com/maps/dir//${gmapscoords}/@${gmapscoords},18z" target="_blank"><span class='GpsInfo'>${textcoords}</span></a>`;
 	}
 	return retval;
 

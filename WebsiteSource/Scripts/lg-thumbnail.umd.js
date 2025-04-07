@@ -1,5 +1,5 @@
 /*!
- * lightgallery | 2.7.1 | January 11th 2023
+ * lightgallery | 2.8.3 | March 1st 2025
  * http://www.lightgalleryjs.com/
  * Copyright (c) 2020 Sachin Neravath;
  * @license GPLv3
@@ -394,7 +394,7 @@
             }
             return thumbDragUtils;
         };
-        Thumbnail.prototype.getThumbHtml = function (thumb, index) {
+        Thumbnail.prototype.getThumbHtml = function (thumb, index, alt) {
             var slideVideoInfo = this.core.galleryItems[index].__slideVideoInfo || {};
             var thumbImg;
             if (slideVideoInfo.youtube) {
@@ -413,18 +413,22 @@
             else {
                 thumbImg = thumb;
             }
-            return "<div data-lg-item-id=\"" + index + "\" class=\"lg-thumb-item " + (index === this.core.index ? ' active' : '') + "\" \n        style=\"width:" + this.settings.thumbWidth + "px; height: " + this.settings.thumbHeight + ";\n            margin-right: " + this.settings.thumbMargin + "px;\">\n            <img data-lg-item-id=\"" + index + "\" src=\"" + thumbImg + "\" />\n        </div>";
-        };
-        Thumbnail.prototype.getThumbItemHtml = function (items) {
-            var thumbList = '';
-            for (var i = 0; i < items.length; i++) {
-                thumbList += this.getThumbHtml(items[i].thumb, i);
-            }
-            return thumbList;
+            var div = document.createElement('div');
+            div.setAttribute('data-lg-item-id', index + '');
+            div.className = "lg-thumb-item " + (index === this.core.index ? 'active' : '');
+            div.style.cssText = "width: " + this.settings.thumbWidth + "px; height: " + this.settings.thumbHeight + "; margin-right: " + this.settings.thumbMargin + "px;";
+            var img = document.createElement('img');
+            img.alt = alt || '';
+            img.setAttribute('data-lg-item-id', index + '');
+            img.src = thumbImg;
+            div.appendChild(img);
+            return div;
         };
         Thumbnail.prototype.setThumbItemHtml = function (items) {
-            var thumbList = this.getThumbItemHtml(items);
-            this.$lgThumb.html(thumbList);
+            for (var i = 0; i < items.length; i++) {
+                var thumb = this.getThumbHtml(items[i].thumb, i, items[i].alt);
+                this.$lgThumb.append(thumb);
+            }
         };
         Thumbnail.prototype.setAnimateThumbStyles = function () {
             if (this.settings.animateThumb) {

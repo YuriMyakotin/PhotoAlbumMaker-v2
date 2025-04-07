@@ -9,13 +9,13 @@ namespace Ui {
 	class SetFolderThumbDialog;
 }
 
-class SetFolderThumbDialog : public QDialog
+class SetFolderThumbDialog final : public QDialog
 {
 	Q_OBJECT
 
 public:
 	explicit SetFolderThumbDialog(ImageInfo * Info, QWidget *parent = nullptr);
-	~SetFolderThumbDialog();
+	~SetFolderThumbDialog() override;
 public slots:
 	void onAccept();
 

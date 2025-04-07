@@ -4,10 +4,10 @@
 #include <QTreeWidget>
 #include <QMouseEvent>
 
-class PhotoAlbumTreeWidget : public QTreeWidget
+class PhotoAlbumTreeWidget final : public QTreeWidget
 {
 public:
-	PhotoAlbumTreeWidget(QWidget *parent = nullptr);
+	explicit PhotoAlbumTreeWidget(QWidget *parent = nullptr);
 	void mousePressEvent ( QMouseEvent * event ) override;
 };
 

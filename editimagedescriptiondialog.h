@@ -14,7 +14,7 @@ class EditImageDescriptionDialog : public QDialog
 
 public:
 	explicit EditImageDescriptionDialog(ImageInfo * Info, QWidget *parent = nullptr);
-	~EditImageDescriptionDialog();
+	~EditImageDescriptionDialog() override;
 public slots:
 	void onAccept();
 

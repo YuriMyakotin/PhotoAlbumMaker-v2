@@ -78,18 +78,18 @@ void EditVideoDialog::Stop()
 	MP.stop();
 }
 
-void EditVideoDialog::DurationChanged(qint64 duration) const
+void EditVideoDialog::DurationChanged(const qint64 duration) const
 {
 	ui->PlaybackProgressSlider->setMaximum(duration);
 }
 
-void EditVideoDialog::PositionChanged(qint64 position) const
+void EditVideoDialog::PositionChanged(const qint64 position) const
 {
 	ui->PlaybackProgressSlider->setSliderPosition(position);
 	ui->TimeLabel->setText(QTime::fromMSecsSinceStartOfDay(position).toString("hh:mm:ss"));
 }
 
-void EditVideoDialog::onManualPositionSet(int position)
+void EditVideoDialog::onManualPositionSet(const int position)
 {
 	MP.setPosition(position);
 }
@@ -102,7 +102,7 @@ void EditVideoDialog::onCreateThumb()
 
 	int32_t height=MainWindow::MainWindowPtr->ThumbSize*0.8;
 	int32_t width=(height*Img.width()/Img.height());
-	QImage *Thumb=ResizeImage::Resize(&Img,width,height);
+	const QImage *Thumb=ResizeImage::Resize(&Img,width,height);
 	ThumbImage=*Thumb;
 
 	delete Thumb;

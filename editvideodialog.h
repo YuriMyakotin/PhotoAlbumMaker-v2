@@ -19,7 +19,7 @@ class EditVideoDialog : public QDialog
 
 public:
 	explicit EditVideoDialog(VideoInfo * Info, QWidget *parent = nullptr);
-	~EditVideoDialog();
+	~EditVideoDialog() override;
 
 public slots:
 	void PlayOrPause();

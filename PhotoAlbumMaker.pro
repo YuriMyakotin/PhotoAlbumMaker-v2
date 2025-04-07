@@ -1,9 +1,11 @@
 QT       += core gui multimedia widgets multimediawidgets concurrent
 
 
-CONFIG += c++latest
+#CONFIG += c++latest
 
-win32-msvc*
+CONFIG += c++20
+
+win32
 {
 QMAKE_CXXFLAGS += /Zc:__cplusplus /O2 /Ot /Oi /GL /arch:AVX2
 }
@@ -16,15 +18,19 @@ QMAKE_CXXFLAGS += /Zc:__cplusplus /O2 /Ot /Oi /GL /arch:AVX2
 SOURCES += \
     TinyEXIF.cpp \
     aboutdialog.cpp \
+    clickablelabel.cpp \
+    editcolorsdialog.cpp \
     editfolderdialog.cpp \
     editimagedescriptiondialog.cpp \
     editvideodialog.cpp \
+    foldercolorswidget.cpp \
     imagethumbwidget.cpp \
     main.cpp \
     mainwindow.cpp \
     photoalbumtreewidget.cpp \
     resizeimage.cpp \
     setfolderthumbdialog.cpp \
+    sitecolors.cpp \
     sitesettingsdialog.cpp \
     videothumbwidget.cpp
 
@@ -35,22 +41,28 @@ HEADERS += \
     avir.h \
     avir_dil.h \
     avir_float8_avx.h \
+    clickablelabel.h \
+    editcolorsdialog.h \
     editfolderdialog.h \
     editimagedescriptiondialog.h \
     editvideodialog.h \
+    foldercolorswidget.h \
     imagethumbwidget.h \
     mainwindow.h \
     photoalbumtreewidget.h \
     resizeimage.h \
     setfolderthumbdialog.h \
+    sitecolors.h \
     sitesettingsdialog.h \
     videothumbwidget.h
 
 FORMS += \
     aboutdialog.ui \
+    editcolorsdialog.ui \
     editfolderdialog.ui \
     editimagedescriptiondialog.ui \
     editvideodialog.ui \
+    foldercolorswidget.ui \
     imagethumbwidget.ui \
     mainwindow.ui \
     setfolderthumbdialog.ui \

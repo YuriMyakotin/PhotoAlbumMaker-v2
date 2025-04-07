@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/website">
+        <file>WebsiteContent/Video.png</file>
         <file>WebsiteContent/index.html</file>
         <file>WebsiteContent/lg.svg</file>
         <file>WebsiteContent/lg.ttf</file>
@@ -8,6 +9,5 @@
         <file>WebsiteContent/loading.gif</file>
         <file>WebsiteContent/photoalbum-bundle.min.js</file>
         <file>WebsiteContent/photogallery-bundle.min.css</file>
-        <file>WebsiteContent/Video.png</file>
     </qresource>
 </RCC>

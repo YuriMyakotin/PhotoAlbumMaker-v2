@@ -792,7 +792,7 @@ public:
 	 */
 
 	void doResize2( const fptype* SrcLine, fptype* DstLine,
-		int DstLineIncr, const fptype* const ElBiases,
+	                const int DstLineIncr, const fptype* const ElBiases,
 		fptype* const xx ) const
 	{
 		doResize( SrcLine, DstLine, DstLineIncr, ElBiases, xx );

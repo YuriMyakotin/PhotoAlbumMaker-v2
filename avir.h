@@ -583,7 +583,7 @@ public:
 		{
 			const capint PrevCapacity = Capacity;
 			T* const PrevData = Data;
-			T* const PrevDataAligned = DataAligned;
+			const T* const PrevDataAligned = DataAligned;
 
 			allocinit( NewCapacity, Alignment );
 
@@ -1018,10 +1018,10 @@ public:
 		zi = z + ( z & 1 );
 		z2 = z * 2;
 
-		CBuffer< double > oscbuf( z2 );
+		const CBuffer< double > oscbuf( z2 );
 		initOscBuf( oscbuf );
 
-		CBuffer< double > winbuf( z );
+		const CBuffer< double > winbuf( z );
 		initWinBuf( winbuf, WFAlpha );
 
 		UseFirstVirtBand = ( MinFreq > 0.0 );
@@ -1615,9 +1615,9 @@ public:
 		const CFltBuffer& aExtFilter, const int aAlignment = 0,
 		const int FltLenAlign = 1 )
 	{
-		double NewWFLen2 = 0.5 * BaseLen * ReqFracCount;
-		double NewWFFreq = AVIR_PI * Cutoff / ReqFracCount;
-		double NewWFAlpha = aWFAlpha;
+		const double NewWFLen2 = 0.5 * BaseLen * ReqFracCount;
+		const double NewWFFreq = AVIR_PI * Cutoff / ReqFracCount;
+		const double NewWFAlpha = aWFAlpha;
 
 		if( ReqOrder == Order && NewWFLen2 == WFLen2 && NewWFFreq == WFFreq &&
 			NewWFAlpha == WFAlpha && ReqFracCount == FracCount &&
@@ -1635,7 +1635,7 @@ public:
 		Alignment = aAlignment;
 		ExtFilter = aExtFilter;
 
-		CDSPPeakedCosineLPF p( WFLen2, WFFreq, WFAlpha );
+		const CDSPPeakedCosineLPF p( WFLen2, WFFreq, WFAlpha );
 		SrcFilterLen = ( p.fl2 / ReqFracCount + 1 ) * 2;
 
 		const int ElementSize = ReqOrder + 1;
@@ -1854,7 +1854,7 @@ private:
 		const int BufOffs = InterpPoints / 2 - 1;
 		const int BufCenter = SrcFilterLen * FracCount / 2 + BufOffs;
 
-		CBuffer< double > Buf( BufLen );
+		const CBuffer< double > Buf( BufLen );
 		memset( Buf, 0, ( BufCenter - p.fl2 ) * sizeof( double ));
 		int i = BufLen - BufCenter - p.fl2 - 1;
 		memset( &Buf[ BufLen - i ], 0, i * sizeof( double ));
@@ -1869,7 +1869,7 @@ private:
 		for( i = FracCount; i >= 0; i-- )
 		{
 			TableFillFlags[ i ] = 0;
-			double* p = Buf + BufOffs + i;
+			const double* p = Buf + BufOffs + i;
 
 			for( j = 0; j < SrcFilterLen; j++ )
 			{
@@ -5563,7 +5563,7 @@ private:
 		}
 
 		const int BinCount = 200;
-		CBuffer< double > Bins( BinCount );
+		const CBuffer< double > Bins( BinCount );
 		int Thresh = (int) round( BinCount / bw * 1.75 );
 
 		if( Thresh > BinCount )
@@ -5684,7 +5684,7 @@ private:
 			while( true )
 			{
 				DownsampleFactor = (int) floor( 0.5 / FltCutoff );
-				bool DoHBFltAdd = ( UseHalfband && DownsampleFactor > 1 );
+				const bool DoHBFltAdd = ( UseHalfband && DownsampleFactor > 1 );
 
 				if( DoHBFltAdd )
 				{
@@ -5863,7 +5863,7 @@ private:
 					fs.ResampleFactor;
 
 				int l0 = fs.OutPrefix + fs.OutLen + fs.OutSuffix;
-				int l = fs.InLen * fs.ResampleFactor +
+				const int l = fs.InLen * fs.ResampleFactor +
 					fs.SuffixDC.getCapacity();
 
 				if( l > l0 )

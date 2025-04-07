@@ -50,7 +50,7 @@
        </sizepolicy>
       </property>
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <property name="handleWidth">
        <number>2</number>
@@ -80,34 +80,34 @@
         </font>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::CustomContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Panel</enum>
+        <enum>QFrame::Shape::Panel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Plain</enum>
+        <enum>QFrame::Shadow::Plain</enum>
        </property>
        <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
        </property>
        <property name="autoScrollMargin">
         <number>16</number>
        </property>
        <property name="editTriggers">
-        <set>QAbstractItemView::NoEditTriggers</set>
+        <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
        </property>
        <property name="dragDropMode">
-        <enum>QAbstractItemView::InternalMove</enum>
+        <enum>QAbstractItemView::DragDropMode::InternalMove</enum>
        </property>
        <property name="defaultDropAction">
-        <enum>Qt::MoveAction</enum>
+        <enum>Qt::DropAction::MoveAction</enum>
        </property>
        <property name="alternatingRowColors">
         <bool>false</bool>
        </property>
        <property name="selectionBehavior">
-        <enum>QAbstractItemView::SelectRows</enum>
+        <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
        </property>
        <property name="iconSize">
         <size>
@@ -163,7 +163,7 @@
 </string>
        </property>
        <property name="tabShape">
-        <enum>QTabWidget::Rounded</enum>
+        <enum>QTabWidget::TabShape::Rounded</enum>
        </property>
        <property name="currentIndex">
         <number>0</number>
@@ -206,28 +206,28 @@
             </sizepolicy>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::ActionsContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::ActionsContextMenu</enum>
            </property>
            <property name="dragDropMode">
-            <enum>QAbstractItemView::InternalMove</enum>
+            <enum>QAbstractItemView::DragDropMode::InternalMove</enum>
            </property>
            <property name="defaultDropAction">
-            <enum>Qt::MoveAction</enum>
+            <enum>Qt::DropAction::MoveAction</enum>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::ExtendedSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
            </property>
            <property name="movement">
-            <enum>QListView::Snap</enum>
+            <enum>QListView::Movement::Snap</enum>
            </property>
            <property name="flow">
-            <enum>QListView::LeftToRight</enum>
+            <enum>QListView::Flow::LeftToRight</enum>
            </property>
            <property name="isWrapping" stdset="0">
             <bool>true</bool>
            </property>
            <property name="resizeMode">
-            <enum>QListView::Adjust</enum>
+            <enum>QListView::ResizeMode::Adjust</enum>
            </property>
            <property name="spacing">
             <number>4</number>
@@ -239,7 +239,7 @@
             <number>10</number>
            </property>
            <property name="itemAlignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -268,31 +268,31 @@
          <item>
           <widget class="QListWidget" name="VideosListWidget">
            <property name="contextMenuPolicy">
-            <enum>Qt::ActionsContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::ActionsContextMenu</enum>
            </property>
            <property name="dragEnabled">
             <bool>true</bool>
            </property>
            <property name="dragDropMode">
-            <enum>QAbstractItemView::InternalMove</enum>
+            <enum>QAbstractItemView::DragDropMode::InternalMove</enum>
            </property>
            <property name="defaultDropAction">
-            <enum>Qt::MoveAction</enum>
+            <enum>Qt::DropAction::MoveAction</enum>
            </property>
            <property name="selectionMode">
-            <enum>QAbstractItemView::ExtendedSelection</enum>
+            <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
            </property>
            <property name="movement">
-            <enum>QListView::Snap</enum>
+            <enum>QListView::Movement::Snap</enum>
            </property>
            <property name="flow">
-            <enum>QListView::LeftToRight</enum>
+            <enum>QListView::Flow::LeftToRight</enum>
            </property>
            <property name="isWrapping" stdset="0">
             <bool>true</bool>
            </property>
            <property name="resizeMode">
-            <enum>QListView::Adjust</enum>
+            <enum>QListView::ResizeMode::Adjust</enum>
            </property>
            <property name="spacing">
             <number>4</number>
@@ -316,7 +316,7 @@
        <number>2</number>
       </property>
       <property name="sizeConstraint">
-       <enum>QLayout::SetMinimumSize</enum>
+       <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
       </property>
       <property name="leftMargin">
        <number>4</number>
@@ -348,10 +348,10 @@
          <string/>
         </property>
         <property name="textFormat">
-         <enum>Qt::PlainText</enum>
+         <enum>Qt::TextFormat::PlainText</enum>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -382,7 +382,7 @@ QProgressBar {border: 1px solid #acacac; border-radius: 0px;  text-align: center
          <number>0</number>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
         <property name="textVisible">
          <bool>true</bool>
@@ -391,7 +391,7 @@ QProgressBar {border: 1px solid #acacac; border-radius: 0px;  text-align: center
          <bool>false</bool>
         </property>
         <property name="textDirection">
-         <enum>QProgressBar::BottomToTop</enum>
+         <enum>QProgressBar::Direction::BottomToTop</enum>
         </property>
         <property name="format">
          <string notr="true">%v / %m</string>
@@ -408,7 +408,7 @@ QProgressBar {border: 1px solid #acacac; border-radius: 0px;  text-align: center
      <x>0</x>
      <y>0</y>
      <width>957</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPhoto_Album">
@@ -418,6 +418,7 @@ QProgressBar {border: 1px solid #acacac; border-radius: 0px;  text-align: center
     <addaction name="actionNewAlbum"/>
     <addaction name="actionOpenAlbum"/>
     <addaction name="actionEditAlbumSettings"/>
+    <addaction name="actionEditsitecolors"/>
     <addaction name="actionRescan_Exif"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
@@ -432,6 +433,9 @@ QProgressBar {border: 1px solid #acacac; border-radius: 0px;  text-align: center
     <addaction name="actionNewSubFolder"/>
     <addaction name="actionEditFolder"/>
     <addaction name="actionDeleteFolder"/>
+    <addaction name="separator"/>
+    <addaction name="actionExpand_All"/>
+    <addaction name="actionCollapse_All"/>
    </widget>
    <widget class="QMenu" name="menuImages">
     <property name="title">
@@ -563,6 +567,21 @@ QProgressBar {border: 1px solid #acacac; border-radius: 0px;  text-align: center
    </property>
    <property name="toolTip">
     <string>Delete Folder</string>
+   </property>
+  </action>
+  <action name="actionExpand_All">
+   <property name="text">
+    <string>Expand All</string>
+   </property>
+  </action>
+  <action name="actionCollapse_All">
+   <property name="text">
+    <string>Collapse All</string>
+   </property>
+  </action>
+  <action name="actionEditsitecolors">
+   <property name="text">
+    <string>Edit site colors</string>
    </property>
   </action>
  </widget>

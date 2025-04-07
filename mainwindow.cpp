@@ -20,7 +20,7 @@
 #include "imagethumbwidget.h"
 #include "resizeimage.h"
 #include "videothumbwidget.h"
-#include <QtConcurrent>
+#include <qtconcurrentrun.h>
 #include "TinyEXIF.h"
 #include "sitesettingsdialog.h"
 #include "editfolderdialog.h"
@@ -31,6 +31,8 @@
 #include "aboutdialog.h"
 #include <fstream>
 #include <cmath>
+#include "editcolorsdialog.h"
+#include "sitecolors.h"
 
 Ui::MainWindow* MainWindow::ui;
 MainWindow* MainWindow::MainWindowPtr;
@@ -82,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionOpenAlbum,&QAction::triggered,this,&MainWindow::onAlbumOpen);
 	connect(ui->actionNewAlbum,&QAction::triggered,this,&MainWindow::onNewAlbum);
 	connect(ui->actionEditAlbumSettings,&QAction::triggered,this,&MainWindow::onAlbumSettingsEdit);
+    connect(ui->actionEditsitecolors,&QAction::triggered,this,&MainWindow::onEditColors);
 	connect(ui->actionRescan_Exif,&QAction::triggered,this,&MainWindow::onExifRescan);
 	connect(ui->actionAbout,&QAction::triggered,this,&MainWindow::onAbout);
 
@@ -94,6 +97,9 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionNewSubFolder,&QAction::triggered,this,&MainWindow::onNewSubFolder);
 	connect(ui->actionEditFolder,&QAction::triggered,this,&MainWindow::onEditFolder);
 	connect(ui->actionDeleteFolder,&QAction::triggered,this,&MainWindow::onDeleteFolder);
+
+    connect(ui->actionExpand_All,&QAction::triggered,this,&MainWindow::onExpandAllFolders);
+    connect(ui->actionCollapse_All,&QAction::triggered,this,&MainWindow::onCollapseAllFolders);
 
 	connect(ui->actionAddVideos,&QAction::triggered,this,&MainWindow::onAddVideo);
 	connect(ui->actionEditVideo,&QAction::triggered,this,&MainWindow::onEditVideo);
@@ -123,7 +129,7 @@ void MainWindow::ConnectFolderTreeWidget()
 void MainWindow::Start()
 {
 	UpdateActionsStatus();
-	if (!SitePath.isEmpty()) onAlbumOpen();
+    if (!SitePath.isEmpty()) onAlbumOpen();
 }
 
 void MainWindow::LoadFolderThumb(const FolderInfo *FI)
@@ -163,6 +169,7 @@ void MainWindow::UpdateActionsStatus() const
 {
 	ui->actionNewRootFolder->setEnabled(isSiteLoaded);
 	ui->actionEditAlbumSettings->setEnabled(isSiteLoaded);
+    ui->actionEditsitecolors->setEnabled(isSiteLoaded);
 	ui->actionRescan_Exif->setEnabled(TotalImages!=0);
 
 	if (ui->FoldersTreeWidget->currentItem()==nullptr)
@@ -243,8 +250,30 @@ bool MainWindow::LoadSiteData()
 	isPrivate=RootObj.value("P").toBool(false);
 	SiteConfigVersion=RootObj.value("V").toInt(110);
 
+    if (SiteConfigVersion<300)
+        SiteColors::ResetColorsToDefault();
+    else
+    {
+        SiteColors::BgColor=QColor(RootObj.value("BgColor").toString());
+        SiteColors::BottomInfoBarColor=QColor(RootObj.value("InfoBarColor").toString());
+        SiteColors::NavBarLinkColor=QColor(RootObj.value("NavBarLinkColor").toString());
+        SiteColors::NavBarCurrentFolderNameColor=QColor(RootObj.value("NavBarCurrentFolderColor").toString());
+        SiteColors::FolderNameColor=QColor(RootObj.value("FolderNameColor").toString());
+        SiteColors::VideoNameColor=QColor(RootObj.value("VideoNameColor").toString());
+        SiteColors::FolderDescriptionColor=QColor(RootObj.value("FolderDescriptionColor").toString());
+        SiteColors::ImageNameColor=QColor(RootObj.value("ImageNameColor").toString());
+        SiteColors::ExifInfoColor=QColor(RootObj.value("ExifInfoColor").toString());
+        SiteColors::GPSInfoColor=QColor(RootObj.value("GPSInfoColor").toString());
+        SiteColors::ImageDescriptionColor=QColor(RootObj.value("ImageDescriptionColor").toString());
+        SiteColors::FolderColors.clear();
+        const QJsonArray FolderColors=RootObj.value("FolderColors").toArray();
+        for(const auto value:FolderColors)
+        {
+            SiteColors::FolderColors.emplace_back(value.toString());
+        }
+    }
 
-	QJsonArray SubFolders=RootObj.value("F").toArray();
+    const QJsonArray SubFolders=RootObj.value("F").toArray();
 	for(const auto value:SubFolders)
 	{
 		QJsonObject Folder = value.toObject();
@@ -260,7 +289,7 @@ bool MainWindow::LoadSiteData()
 
 		if (Folder.value("Im").isArray())
 		{
-			QJsonArray ImagesArray=Folder.value("Im").toArray();
+            const QJsonArray ImagesArray=Folder.value("Im").toArray();
 
 			for(const auto img:ImagesArray)
 			{
@@ -294,7 +323,7 @@ bool MainWindow::LoadSiteData()
 
 		if (Folder.value("V").isArray())
 		{
-			QJsonArray VideosArray=Folder.value("V").toArray();
+            const QJsonArray VideosArray=Folder.value("V").toArray();
 			for(const auto vid:VideosArray)
 			{
 				QJsonObject VidObj=vid.toObject();
@@ -336,7 +365,8 @@ bool MainWindow::LoadSiteData()
 	}
 
 	ui->FoldersTreeWidget->setEnabled(true);
-	ui->FoldersTreeWidget->expandAll();
+    if (AllFoldersExpanded) ui->FoldersTreeWidget->expandAll();
+    else ui->FoldersTreeWidget->collapseAll();
 
 	ConnectFolderTreeWidget();
 	setWindowTitle("PhotoAlbum Maker - "+AlbumName);
@@ -392,9 +422,9 @@ void MainWindow::onFolderContextMenuRequested(const QPoint &pos)
 }
 
 
-void MainWindow::onFolderSelectionChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+void MainWindow::onFolderSelectionChanged(QTreeWidgetItem *current, const QTreeWidgetItem *previous)
 {
-	Q_UNUSED(previous);
+	Q_UNUSED(previous)
 
 	CurrentFolderImages.clear();
 
@@ -467,7 +497,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::StartSaving()
 {
 	hasUnsavedChanges=true;
-	SavingTimer.start(60000);
+    SavingTimer.start(30000);
 }
 
 void MainWindow::SaveSiteData()
@@ -482,9 +512,32 @@ void MainWindow::SaveSiteData()
 			isBackupCreated=true;
 	}
 
-	TotalImages=0;
-	TotalVideos=0;
-	QJsonObject RootObj;
+    TotalImages=0;
+    TotalVideos=0;
+    QJsonObject RootObj;
+
+    RootObj.insert("BgColor",SiteColors::BgColor.name());
+    RootObj.insert("InfoBarColor",SiteColors::BottomInfoBarColor.name());
+    RootObj.insert("NavBarLinkColor",SiteColors::NavBarLinkColor.name());
+    RootObj.insert("NavBarCurrentFolderColor",SiteColors::NavBarCurrentFolderNameColor.name());
+    RootObj.insert("FolderNameColor",SiteColors::FolderNameColor.name());
+    RootObj.insert("VideoNameColor",SiteColors::VideoNameColor.name());
+    RootObj.insert("FolderDescriptionColor",SiteColors::FolderDescriptionColor.name());
+    RootObj.insert("ImageNameColor",SiteColors::ImageNameColor.name());
+    RootObj.insert("ExifInfoColor",SiteColors::ExifInfoColor.name());
+    RootObj.insert("GPSInfoColor",SiteColors::GPSInfoColor.name());
+    RootObj.insert("ImageDescriptionColor",SiteColors::ImageDescriptionColor.name());
+
+    QJsonArray FolderColors;
+
+
+    for(const auto value:SiteColors::FolderColors)
+    {
+        FolderColors.append(QJsonValue(value.name()));
+    }
+    RootObj.insert("FolderColors",FolderColors);
+
+
 	RootObj.insert("N",AlbumName);
 	RootObj.insert("D",Description);
 	RootObj.insert("IS",SlideSize);
@@ -497,7 +550,7 @@ void MainWindow::SaveSiteData()
 	QJsonArray JsonFolders;
 	for (int32_t i=0;i<ui->FoldersTreeWidget->topLevelItemCount();i++)
 	{
-		AlbumTreeItem * RootFolder= dynamic_cast<AlbumTreeItem*>(ui->FoldersTreeWidget->topLevelItem(i));
+		const AlbumTreeItem * RootFolder= dynamic_cast<AlbumTreeItem*>(ui->FoldersTreeWidget->topLevelItem(i));
 		FolderToJson(JsonFolders,RootFolder,0);
 	}
 	RootObj.insert("TIC",TotalImages);
@@ -536,7 +589,7 @@ void MainWindow::CloseSite()
 	ui->VideosListWidget->clear();
 	AlbumFolders.clear();
 	CurrentFolderImages.clear();
-	for(const AlbumTreeItem* Item : qAsConst(AlbumFolders))
+    for(const AlbumTreeItem* Item : std::as_const(AlbumFolders))
 	{
 		for(int i=0;i<Item->Info->ImagesList.count();i++) delete Item->Info->ImagesList[i];
 		for(int i=0;i<Item->Info->VideosList.count();i++) delete Item->Info->VideosList[i];
@@ -547,7 +600,7 @@ void MainWindow::CloseSite()
 	LastFolderID=0;
 }
 
-void MainWindow::FolderToJson(QJsonArray &FoldersArray, const AlbumTreeItem *Folder, int32_t ParentFolderID)
+void MainWindow::FolderToJson(QJsonArray &FoldersArray, const AlbumTreeItem *Folder, const int32_t ParentFolderID)
 {
 	QJsonObject FolderObj;
 	FolderInfo * FI=Folder->Info;
@@ -602,7 +655,7 @@ void MainWindow::FolderToJson(QJsonArray &FoldersArray, const AlbumTreeItem *Fol
 
 }
 
-void MainWindow::onFolderThumbLoaded(int FolderID,void * ImgPtr) const
+void MainWindow::onFolderThumbLoaded(const int FolderID,void * ImgPtr) const
 {
 	AlbumTreeItem * Folder=AlbumFolders.value(FolderID,nullptr);
 	if (Folder!=nullptr)
@@ -618,16 +671,16 @@ void MainWindow::onFolderThumbLoaded(int FolderID,void * ImgPtr) const
 	}
 }
 
-void MainWindow::onFolderMoved(const QModelIndex &parent, int first, int last)
+void MainWindow::onFolderMoved(const QModelIndex &parent, const int first, const int last)
 {
 	Q_UNUSED(parent);
 	Q_UNUSED(first);
 	Q_UNUSED(last);
-	ui->FoldersTreeWidget->expandAll();
+    if (AllFoldersExpanded) ui->FoldersTreeWidget->expandAll();
 	StartSaving();
 }
 
-void MainWindow::onImageMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row)
+void MainWindow::onImageMoved(const QModelIndex &parent, const int start, const int end, const QModelIndex &destination, const int row)
 {
 	Q_UNUSED(parent);
 	Q_UNUSED(start);
@@ -656,7 +709,7 @@ void MainWindow::SaveImagesOrder()
 	StartSaving();
 }
 
-void MainWindow::onVideoMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row)
+void MainWindow::onVideoMoved(const QModelIndex &parent, const int start, const int end, const QModelIndex &destination, const int row)
 {
 	Q_UNUSED(parent);
 	Q_UNUSED(start);
@@ -687,10 +740,12 @@ bool MainWindow::CopySiteContent() const
 {
 	bool result=true;
 
-	QDir TargetDir(SitePath);
-	QFile::setPermissions("index.html",QFile::ReadOther | QFile::WriteOther);
+	const QDir TargetDir(SitePath);
+    QFile::setPermissions(TargetDir.filePath("index.html"),QFile::ReadOther | QFile::WriteOther);
 	QFile::remove(TargetDir.filePath("index.html"));
-	result=result && QFile::copy(":/website/WebsiteContent/index.html",TargetDir.filePath("index.html"));
+    result=result && QFile::copy(":/website/WebsiteContent/index.html",TargetDir.filePath("index.html"));
+
+
 
 	TargetDir.mkpath("Scripts");
 	TargetDir.mkpath("Content");
@@ -700,13 +755,15 @@ bool MainWindow::CopySiteContent() const
 
 
 
-	QFile::setPermissions("Scripts/photoalbum-bundle.min.js",QFile::ReadOther | QFile::WriteOther);
-	QFile::remove(TargetDir.filePath("Scripts/photoalbum-bundle.min.js"));
-	result=result && QFile::copy(":/website/WebsiteContent/photoalbum-bundle.min.js",TargetDir.filePath("Scripts/photoalbum-bundle.min.js"));
+    QFile::setPermissions(TargetDir.filePath("Scripts/photoalbum-bundle.min.js"),QFile::ReadOther | QFile::WriteOther);
+    QFile::remove(TargetDir.filePath("Scripts/photoalbum-bundle.min.js"));
+    result=result && QFile::copy(":/website/WebsiteContent/photoalbum-bundle.min.js",TargetDir.filePath("Scripts/photoalbum-bundle.min.js"));
 
-	QFile::setPermissions("Content/photogallery-bundle.min.css",QFile::ReadOther | QFile::WriteOther);
+
+    QFile::setPermissions(TargetDir.filePath("Content/photogallery-bundle.min.css"),QFile::ReadOther | QFile::WriteOther);
 	QFile::remove(TargetDir.filePath("Content/photogallery-bundle.min.css"));
 	result=result && QFile::copy(":/website/WebsiteContent/photogallery-bundle.min.css",TargetDir.filePath("Content/photogallery-bundle.min.css"));
+
 
 	QFile::copy(":/website/WebsiteContent/Video.png",TargetDir.filePath("Content/Video.png"));
 	QFile::copy(":/website/WebsiteContent/loading.gif",TargetDir.filePath("Images/loading.gif"));
@@ -751,7 +808,7 @@ bool MainWindow::MakeSlideAndThumb(const ImageInfo * Img, const bool MakeSlide, 
 
 
 
-void MainWindow::PrepareToAsyncJob(int32_t ItemsToProcess, QString Message)
+void MainWindow::PrepareToAsyncJob(const int32_t ItemsToProcess, QString Message)
 {
 	ui->progressBar->setValue(0);
 	ui->progressBar->setMaximum(ItemsToProcess);
@@ -790,14 +847,14 @@ void MainWindow::onProgressUpdate()
 void MainWindow::RecreateSlidesAndThumbs(const bool MakeSlide, const bool MakeThumb)
 {
 	TotalImages=0;
-	for(const AlbumTreeItem* Item : qAsConst(AlbumFolders))
+    for(const AlbumTreeItem* Item : std::as_const(AlbumFolders))
 	{
 		TotalImages+=Item->Info->ImagesList.count();
 	}
 
 	PrepareToAsyncJob(TotalImages,"Recreating images thumbs and slides");
 
-	for(const AlbumTreeItem* Item : qAsConst(AlbumFolders))
+    for(const AlbumTreeItem* Item : std::as_const(AlbumFolders))
 	{
 		for (int32_t i=0;i<Item->Info->ImagesList.count();i++)
 		{
@@ -859,9 +916,9 @@ void MainWindow::NewFolder(const QString& FolderName, const QString& FolderDescr
 	}
 
 	else AlbumFolders.value(ParentFolderID)->addChild(TreeItem);
-	ui->FoldersTreeWidget->expandAll();
+    if (AllFoldersExpanded) ui->FoldersTreeWidget->expandAll();
 	UpdateActionsStatus();
-	StartSaving();
+    StartSaving();
 }
 
 void MainWindow::onNewRootFolder()
@@ -944,6 +1001,17 @@ void MainWindow::onContextMenuDeleteFolder()
 	onDeleteFolder(ui->actionContextMenuDeleteFolder->data().toInt());
 }
 
+void MainWindow::onExpandAllFolders()
+{
+    AllFoldersExpanded=true;
+    ui->FoldersTreeWidget->expandAll();
+}
+void MainWindow::onCollapseAllFolders()
+{
+    AllFoldersExpanded=false;
+    ui->FoldersTreeWidget->collapseAll();
+}
+
 void MainWindow::DeleteVideoFile(const VideoInfo* VidInfo) const
 {
 	const QDir VideosDir(SitePath+"/Videos/");
@@ -952,7 +1020,7 @@ void MainWindow::DeleteVideoFile(const VideoInfo* VidInfo) const
 
 }
 
-QString ExposureToString(double Exposure)
+QString ExposureToString(const double Exposure)
 {
 	return (Exposure > 0.5)? QString::number(Exposure)
 					: "1/" +QString::number(1/Exposure);
@@ -975,7 +1043,7 @@ bool MainWindow::ReadExifData(ImageInfo* ImgInfo) const
 
 	if(!imageEXIF.DateTimeOriginal.empty())
 	{
-		QDateTime OrigTime=QDateTime::fromString(QString::fromStdString(imageEXIF.DateTimeOriginal),Qt::ISODate);
+		const QDateTime OrigTime=QDateTime::fromString(QString::fromStdString(imageEXIF.DateTimeOriginal),Qt::ISODate);
 		ImgInfo->Datetime=OrigTime.toString("dd.MM.yyyy hh:mm");
 	}
 	else ImgInfo->Datetime="";
@@ -1005,7 +1073,7 @@ bool MainWindow::ReadExifData(ImageInfo* ImgInfo) const
 void MainWindow::onExifRescan()
 {
 	TotalImages=0;
-	for(const AlbumTreeItem* Item : qAsConst(AlbumFolders))
+    for(const AlbumTreeItem* Item : std::as_const(AlbumFolders))
 	{
 		TotalImages+=Item->Info->ImagesList.count();
 	}
@@ -1013,7 +1081,7 @@ void MainWindow::onExifRescan()
 	PrepareToAsyncJob(TotalImages,"Rebuilding images EXIF info");
 
 
-	for(const AlbumTreeItem* Item : qAsConst(AlbumFolders))
+    for(const AlbumTreeItem* Item : std::as_const(AlbumFolders))
 	{
 		for (int32_t i=0;i<Item->Info->ImagesList.count();i++)
 		{
@@ -1135,7 +1203,7 @@ void MainWindow::onEditImageDescription()
 {
 	ImageInfo * Info= dynamic_cast<ImageThumbWidget*>(ui->ImagesListWidget->itemWidget(ui->ImagesListWidget->currentItem()))->ImgInfo;
 	EditImageDescriptionDialog Dlg(Info, this);
-	Dlg.exec();
+    if (Dlg.exec()==QDialog::Accepted) StartSaving();
 }
 
 void MainWindow::onDeleteImages()
@@ -1145,11 +1213,11 @@ void MainWindow::onDeleteImages()
 
 	for (int i=0;i<ui->ImagesListWidget->selectedItems().count();i++)
 	{
-		ImageInfo * Info= dynamic_cast<ImageThumbWidget*>(ui->ImagesListWidget->itemWidget(ui->ImagesListWidget->selectedItems()[i]))->ImgInfo;
+		const ImageInfo * Info= dynamic_cast<ImageThumbWidget*>(ui->ImagesListWidget->itemWidget(ui->ImagesListWidget->selectedItems()[i]))->ImgInfo;
 		QFile::remove(GetOriginalFileName(Info->FolderID,Info->Name));
 		QFile::remove(GetSlideFileName(Info->FolderID,Info->Name));
 		QFile::remove(GetThumbFileName(Info->FolderID,Info->Name));
-		for(AlbumTreeItem* Item : qAsConst(AlbumFolders)) //check if image used as folder thumbnail
+        for(const AlbumTreeItem* Item : std::as_const(AlbumFolders)) //check if image used as folder thumbnail
 		{
 			if ((Item->Info->ThumbFolderID==Info->FolderID)&&(Item->Info->ThumbName==Info->Name))
 			{
@@ -1173,6 +1241,7 @@ void MainWindow::onSetImageAsThumb()
 	ImageInfo * Info= dynamic_cast<ImageThumbWidget*>(ui->ImagesListWidget->itemWidget(ui->ImagesListWidget->currentItem()))->ImgInfo;
 	SetFolderThumbDialog Dlg(Info, this);
 	Dlg.exec();
+
 }
 
 
@@ -1185,7 +1254,7 @@ void MainWindow::onAddVideo()
 
 	settings->setValue("videospath",QFileInfo(OriginalFileName).absolutePath());
 	settings->sync();
-	QString FileName=QFileInfo(OriginalFileName).fileName();
+	const QString FileName=QFileInfo(OriginalFileName).fileName();
 	if (QFile::exists(SitePath+"/Videos/"+FileName))
 	{
 		QMessageBox::warning(this,"Error","File "+FileName+" already exists. Remove existing video or rename new one first.");
@@ -1215,11 +1284,12 @@ void MainWindow::onAddVideo()
 		Widget->Update();
 	}
 	StartSaving();
+    onFolderSelectionChanged(ui->FoldersTreeWidget->currentItem(),nullptr);
 }
 
 void MainWindow::onEditVideo()
 {
-	VideoThumbWidget * Widget=dynamic_cast<VideoThumbWidget*>(ui->VideosListWidget->itemWidget(ui->VideosListWidget->currentItem()));
+	const VideoThumbWidget * Widget=dynamic_cast<VideoThumbWidget*>(ui->VideosListWidget->itemWidget(ui->VideosListWidget->currentItem()));
 	VideoInfo * Info=Widget->VidInfo;
 	EditVideoDialog Dlg(Info, this);
 	if (Dlg.exec()==QDialog::Accepted)
@@ -1245,6 +1315,7 @@ void MainWindow::onDeleteVideo()
 		qDeleteAll(ui->VideosListWidget->selectedItems());
 		SaveVideosOrder();
 		onFolderSelectionChanged(ui->FoldersTreeWidget->currentItem(),nullptr);
+
 }
 
 void MainWindow::onAbout()
@@ -1252,3 +1323,11 @@ void MainWindow::onAbout()
 	AboutDialog Dlg(this);
 	Dlg.exec();
 }
+
+void MainWindow::onEditColors()
+{
+    EditColorsDialog Dlg(this);
+    if (Dlg.exec()==QDialog::Accepted) StartSaving();
+}
+
+

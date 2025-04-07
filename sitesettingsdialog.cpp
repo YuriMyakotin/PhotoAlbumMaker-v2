@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-SiteSettingsDialog::SiteSettingsDialog(bool isNew,QWidget *parent) :
+SiteSettingsDialog::SiteSettingsDialog(const bool isNew,QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::SiteSettingsDialog)
 {

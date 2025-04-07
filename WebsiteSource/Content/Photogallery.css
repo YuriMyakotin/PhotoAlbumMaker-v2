@@ -3,21 +3,10 @@
 }
 
 body {
-	background-color: #505080;
 	color: #889098;
 }
 
-a:link,
-a:visited {
-	color: #dcdcdc;
-    text-decoration: none;
-}
 
-a:active,
-a:hover {
-	color: #b8b8b8;
-    text-decoration: none;
-}
 
 .top_navigation {
 	text-align: center;
@@ -28,17 +17,20 @@ a:hover {
 	font-weight: bold;
 	margin-bottom: 15px;
 	margin-top: 15px;
+	text-decoration: none;
+	outline: none;
 }
 
-.top_navigation a {
+
+.FolderLink {
 	text-decoration: none;
 	outline: none;
 }
 
 .Img {
 	margin:0;
-	margin-top:0px;
-	margin-bottom:0px;
+	margin-top:0;
+	margin-bottom:0;
 }
 
 .Fol {
@@ -73,13 +65,12 @@ a:hover {
 .folder-desc {
 	margin: auto;
 	margin-top: 5px;
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 	width: 90%;
 	text-align: center;
 	font-size: smaller;
 	font-family: helvetica,sans-serif;
 	font-style: italic;
-	color: #c8D8E8;
 	background-color: transparent;
 }
 
@@ -108,10 +99,8 @@ a:hover {
 	font-family: helvetica,sans-serif;
 	font-weight: bold;
 	font-size: large;
-	color: white;
 	padding: 2px;
 	text-align: right;
-
 	text-shadow: 4px 3px 2px #404040;
 	width: 45%;
 }
@@ -123,37 +112,51 @@ a:hover {
 	font-family: helvetica,sans-serif;
 	font-weight: bold;
 	font-size: medium;
-	color: white;
 	padding: 2px;
 	text-align: right;
 	text-shadow: 3px 2px 1px #404040;
 	width: 30%;
 }
 
-a.OrigImgLink:link, a.OrigImgLink:visited, a.OrigImgLink:hover, a.OrigImgLink:active {
-	color: #A0C0FF;
+.ImgName {
+	font-weight: bold;
+	font-size: 18px;
+	outline: none;
+}
+
+.ExifInfo {
+	font-family: helvetica,sans-serif;
+	font-size: 16px;
+	outline: none;
+}
+
+.GpsInfo {
+	font-family: helvetica,sans-serif;
+	font-size: 14px;
+	font-style: italic;
+}
+
+
+a.NoDecorationLink:link, a.NoDecorationLink, a.NoDecorationLink:hover, a.NoDecorationLink:active {
+	color: #889098;
 	text-decoration: none;
-    font-weight: bold;
-    font-size: 18px;
-    outline: none;
 }
 
 .cmnt{
-	color:lightcoral;
+
 	font-style:italic;
-	font-size: 16px;
+	font-size: 14px;
 	font-family:'Times New Roman', Times, serif;
 }
 
 
 footer {
 	text-align: center;
-	font-size: 14px;
-    font-family: Arial, sans-serif;
+	font-size: 12px;
+	font-family: Arial, sans-serif;
 }
 
 
 .bottom-info-bar {
-	color: lightgoldenrodyellow;
 	font-style: italic;
 }

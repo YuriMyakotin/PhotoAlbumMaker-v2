@@ -59,7 +59,7 @@ namespace {
 namespace Tools {
 
 	// search string inside a string, case sensitive
-	static const char* strrnstr(const char* haystack, const char* needle, size_t len) {
+	static const char* strrnstr(const char* haystack, const char* needle, const size_t len) {
 		const size_t needle_len(strlen(needle));
 		if (0 == needle_len)
 			return haystack;
@@ -75,7 +75,7 @@ namespace Tools {
 	}
 
 	// split an input string with a delimiter and fill a string vector
-	static void strSplit(const std::string& str, char delim, std::vector<std::string>& values) {
+	static void strSplit(const std::string& str, const char delim, std::vector<std::string>& values) {
 		values.clear();
 		std::string::size_type start(0), end(0);
 		while (end != std::string::npos) {
@@ -175,10 +175,10 @@ private:
 	uint32_t length;
 
 public:
-	EntryParser(const uint8_t* _buf, unsigned _len, unsigned _tiff_header_start, bool _alignIntel)
+	EntryParser(const uint8_t* _buf, const unsigned _len, const unsigned _tiff_header_start, const bool _alignIntel)
 		: buf(_buf), len(_len), tiff_header_start(_tiff_header_start), alignIntel(_alignIntel), offs(0) {}
 
-	void Init(unsigned _offs) {
+	void Init(const unsigned _offs) {
 		offs = _offs - 12;
 	}
 
@@ -226,7 +226,7 @@ public:
 		val = parse16(buf + offs + 8, alignIntel);
 		return true;
 	}
-	bool Fetch(uint16_t& val, uint32_t idx) const {
+	bool Fetch(uint16_t& val, const uint32_t idx) const {
 		if (!IsShort() || length <= idx)
 			return false;
 		val = parse16(buf + GetSubIFD() + idx*2, alignIntel);
@@ -250,7 +250,7 @@ public:
 		val = parseRational(buf + GetSubIFD(), alignIntel, IsSRational());
 		return true;
 	}
-	bool Fetch(double& val, uint32_t idx) const {
+	bool Fetch(double& val, const uint32_t idx) const {
 		if (!IsRational() || length <= idx)
 			return false;
 		val = parseRational(buf + GetSubIFD() + idx*8, alignIntel, IsSRational());
@@ -269,12 +269,12 @@ public:
 	static uint8_t parse8(const uint8_t* buf) {
 		return buf[0];
 	}
-	static uint16_t parse16(const uint8_t* buf, bool intel) {
+	static uint16_t parse16(const uint8_t* buf, const bool intel) {
 		if (intel)
 			return ((uint16_t)buf[1]<<8) | buf[0];
 		return ((uint16_t)buf[0]<<8) | buf[1];
 	}
-	static uint32_t parse32(const uint8_t* buf, bool intel) {
+	static uint32_t parse32(const uint8_t* buf, const bool intel) {
 		if (intel)
 			return ((uint32_t)buf[3]<<24) |
 				((uint32_t)buf[2]<<16) |
@@ -285,7 +285,7 @@ public:
 			((uint32_t)buf[2]<<8)  |
 			buf[3];
 	}
-	static float parseFloat(const uint8_t* buf, bool intel) {
+	static float parseFloat(const uint8_t* buf, const bool intel) {
 		union {
 			uint32_t i;
 			float f;
@@ -293,7 +293,7 @@ public:
 		i2f.i = parse32(buf, intel);
 		return i2f.f;
 	}
-	static double parseRational(const uint8_t* buf, bool intel, bool isSigned) {
+	static double parseRational(const uint8_t* buf, const bool intel, const bool isSigned) {
 		const uint32_t denominator = parse32(buf+4, intel);
 		if (denominator == 0)
 			return 0.0;
@@ -303,17 +303,17 @@ public:
 			(double)numerator/(double)denominator;
 	}
 	static std::string parseString(const uint8_t* buf,
-		unsigned num_components,
-		unsigned data,
-		unsigned base,
-		unsigned len,
-		bool intel)
+	                               const unsigned num_components,
+	                               const unsigned data,
+	                               const unsigned base,
+	                               const unsigned len,
+	                               const bool intel)
 	{
 		std::string value;
 		if (num_components <= 4) {
 			value.resize(num_components);
 			char j = intel ? 0 : 24;
-			char j_m = intel ? -8 : 8;
+			const char j_m = intel ? -8 : 8;
 			for (unsigned i=0; i<num_components; ++i, j -= j_m)
 				value[i] = (data >> j) & 0xff;
 			if (value[num_components-1] == '\0')
@@ -342,7 +342,7 @@ EXIFInfo::EXIFInfo(EXIFStream& stream) {
 EXIFInfo::EXIFInfo(std::istream& stream) {
 	parseFrom(stream);
 }
-EXIFInfo::EXIFInfo(const uint8_t* data, unsigned length) {
+EXIFInfo::EXIFInfo(const uint8_t* data, const unsigned length) {
 	parseFrom(data, length);
 }
 
@@ -783,7 +783,7 @@ int EXIFInfo::parseFrom(EXIFStream& stream) {
 		inline APP1S(uint32_t& v) : val(v) {}
 		inline operator uint32_t () const { return val; }
 		inline operator uint32_t& () { return val; }
-		inline int operator () (int code=PARSE_ABSENT_DATA) const { return val&FIELD_ALL ? (int)PARSE_SUCCESS : code; }
+		inline int operator () (const int code=PARSE_ABSENT_DATA) const { return val&FIELD_ALL ? (int)PARSE_SUCCESS : code; }
 	} app1s(Fields);
 	while ((buf=stream.GetBuffer(2)) != NULL) {
 		// find next marker;
@@ -864,13 +864,13 @@ int EXIFInfo::parseFrom(std::istream& stream) {
 		bool IsValid() const override {
 			return !!stream;
 		}
-		const uint8_t* GetBuffer(unsigned desiredLength) override {
+		const uint8_t* GetBuffer(const unsigned desiredLength) override {
 			buffer.resize(desiredLength);
 			if (!stream.read(reinterpret_cast<char*>(buffer.data()), desiredLength))
 				return NULL;
 			return buffer.data();
 		}
-		bool SkipBuffer(unsigned desiredLength) override {
+		bool SkipBuffer(const unsigned desiredLength) override {
 			return (bool)stream.seekg(desiredLength, std::ios::cur);
 		}
 	private:
@@ -882,15 +882,15 @@ int EXIFInfo::parseFrom(std::istream& stream) {
 }
 
 
-int EXIFInfo::parseFrom(const uint8_t* buf, unsigned len) {
+int EXIFInfo::parseFrom(const uint8_t* buf, const unsigned len) {
 	class EXIFStreamBuffer : public EXIFStream {
 	public:
-		explicit EXIFStreamBuffer(const uint8_t* buf, unsigned len)
+		explicit EXIFStreamBuffer(const uint8_t* buf, const unsigned len)
 			: it(buf), end(buf+len) {}
 		bool IsValid() const override {
 			return it != NULL;
 		}
-		const uint8_t* GetBuffer(unsigned desiredLength) override {
+		const uint8_t* GetBuffer(const unsigned desiredLength) override {
 			const uint8_t* const itNext(it+desiredLength);
 			if (itNext >= end)
 				return NULL;
@@ -898,7 +898,7 @@ int EXIFInfo::parseFrom(const uint8_t* buf, unsigned len) {
 			it = itNext;
 			return begin;
 		}
-		bool SkipBuffer(unsigned desiredLength) override {
+		bool SkipBuffer(const unsigned desiredLength) override {
 			return GetBuffer(desiredLength) != NULL;
 		}
 	private:
@@ -923,7 +923,7 @@ int EXIFInfo::parseFrom(const uint8_t* buf, unsigned len) {
 // PARAM: 'buf' start of the EXIF TIFF, which must be the bytes "Exif\0\0".
 // PARAM: 'len' length of buffer
 //
-int EXIFInfo::parseFromEXIFSegment(const uint8_t* buf, unsigned len) {
+int EXIFInfo::parseFromEXIFSegment(const uint8_t* buf, const unsigned len) {
 	unsigned offs = 6; // current offset into buffer
 	if (!buf || len < offs)
 		return PARSE_ABSENT_DATA;

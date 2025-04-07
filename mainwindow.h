@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 public:
-	MainWindow(QWidget *parent = nullptr);
+	explicit MainWindow(QWidget *parent = nullptr);
 	~MainWindow() override;
 	int32_t SiteConfigVersion; //1xx - obsolete, from v1.1
 	bool isPrivate; //true = disable right clicks and downloads
@@ -39,6 +39,8 @@ public:
 
 	bool isBackupCreated=false;
 	bool hasUnsavedChanges=false;
+    bool AllFoldersExpanded=true;
+
 	QTimer SavingTimer;
 
 	QString SitePath;
@@ -77,7 +79,7 @@ public:
 	static constexpr int32_t FolderIconSize=64;
 
 	const QString IniName="PhotoAlbumMaker.ini";
-	const int32_t PhotoAlbumVersion=203;
+    const int32_t PhotoAlbumVersion=300;
 
 	QSettings * settings;
 
@@ -101,6 +103,7 @@ public slots:
 	void onAlbumOpen();
 	void onNewAlbum();
 	void onAlbumSettingsEdit();
+    void onEditColors();
 	void onExifRescan();
 
 	void onAbout();
@@ -109,6 +112,9 @@ public slots:
 	void onNewSubFolder(int32_t FolderID=0);
 	void onEditFolder(int32_t FolderID=0);
 	void onDeleteFolder(int32_t FolderID=0);
+
+    void onExpandAllFolders();
+    void onCollapseAllFolders();
 
 	void onContextMenuNewFolder();
 	void onContextMenuEditFolder();
@@ -126,7 +132,7 @@ public slots:
 	void onEditVideo();
 	void onDeleteVideo();
 
-	void onFolderSelectionChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+	void onFolderSelectionChanged(QTreeWidgetItem *current, const QTreeWidgetItem *previous);
 
 	void onFolderMoved(const QModelIndex &parent, int first, int last);
 	void onImageMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row);

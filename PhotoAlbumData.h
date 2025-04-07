@@ -43,10 +43,10 @@ struct FolderInfo
 
 
 
-class AlbumTreeItem:public QTreeWidgetItem
+class AlbumTreeItem final :public QTreeWidgetItem
 {
 public:
-	AlbumTreeItem(FolderInfo * FI):QTreeWidgetItem()
+	explicit AlbumTreeItem(FolderInfo * FI):QTreeWidgetItem()
 	{
 		Info=FI;
 	}

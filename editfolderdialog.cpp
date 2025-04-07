@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include <QMessageBox>
 
-EditFolderDialog::EditFolderDialog(int32_t FolderID,QWidget *parent) :
+EditFolderDialog::EditFolderDialog(const int32_t FolderID,QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::EditFolderDialog)
 {
